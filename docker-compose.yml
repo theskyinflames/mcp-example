@@ -1,0 +1,84 @@
+version: "3.8"
+
+services:
+  # The MCP Server that the host connects to
+  mcp-server-go:
+    build:
+      context: ./mcp-server-go
+      dockerfile: Dockerfile
+    container_name: mcp-server-go
+    networks:
+      - mcp-net
+    # Healthcheck tells Docker how to verify the server is ready
+    healthcheck:
+      # Use curl to check if the server is responding.
+      # You might need to add curl to your mcp-server-go Dockerfile if it's not present.
+      # A simple check could be to see if the port is open.
+      test: ["CMD", "nc", "-z", "localhost", "8090"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    # Expose the port the server listens on
+    ports:
+      - "8090:8090" # Maps port 8090 inside the container
+      - "8091:8091" # Maps port 8091 inside the container
+
+  mcp-server-python:
+    build:
+      context: ./mcp-server-python
+      dockerfile: Dockerfile
+    container_name: mcp-server-python
+    networks:
+      - mcp-net
+    # Healthcheck tells Docker how to verify the server is ready
+    healthcheck:
+      # Use curl to check if the FastAPI health endpoint is responding
+      test:
+        [
+          "CMD",
+          "curl",
+          "--request",
+          "GET",
+          "--url",
+          "http://localhost:9001/health",
+          "--header",
+          "Accept: application/json, text/event-stream",
+          "--header",
+          "Content-Type: application/json",
+          "--header",
+          "User-Agent: insomnia/11.2.0",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    ports:
+      - "9000:9000" # Maps port 9000 inside the container
+
+  # The MCP Host that depends on the server
+  mcp-host:
+    build:
+      context: ./mcp-host
+      dockerfile: Dockerfile
+    container_name: mcp-host
+    # This now waits for the mcp-server to be 'healthy', not just 'started'
+    depends_on:
+      mcp-server-go:
+        condition: service_started
+      mcp-server-python:
+        condition: service_started
+    environment:
+      # The host can reach the server using its service name 'mcp-server'
+      - USERS_MCP_SERVER_ADDR=${USERS_MCP_SERVER_ADDR:-http://mcp-server-go:8090}
+
+      # The host can reach the Python server using its service name 'mcp-server-python'
+      - CALC_MCP_SERVER_ADDR=${CALC_MCP_SERVER_ADDR:-http://mcp-server-python:9000}
+
+      # Pass the API key from a .env file or the host's environment
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+    networks:
+      - mcp-net
+
+# Defines the network that allows containers to communicate
+networks:
+  mcp-net:
+    driver: bridge

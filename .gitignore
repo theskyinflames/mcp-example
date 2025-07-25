@@ -1,0 +1,6 @@
+**/venv
+
+.vscode/*
+
+mcp-host/bin/*
+mcp-server-go/bin/*
