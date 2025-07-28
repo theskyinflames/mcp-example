@@ -1,13 +1,195 @@
-# MCP example with Go
+# MCP Example with Go
 
-## Get tools list from users MCP server
+This project demonstrates the Model Context Protocol (MCP) implementation using Go for the host application and both Go and Python for the MCP servers. The example showcases how different MCP servers can provide specialized tools that can be orchestrated by an LLM-powered host application.
 
-```sh
+## Architecture Overview
+
+The project consists of three main components:
+
+1. **MCP Host (Go)** - An intelligent host application that integrates with an LLM (DeepSeek API) to analyze user queries and call appropriate tools from the MCP servers
+2. **MCP Server Go** - Provides user management tools
+3. **MCP Server Python** - Provides mathematical and text processing tools
+
+### System Interaction Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Host as MCP Host<br/>(Go)
+    participant LLM as DeepSeek API<br/>(LLM)
+    participant GoClient as Go MCP Client
+    participant PythonClient as Python MCP Client
+    participant GoServer as Go MCP Server<br/>(User Management)
+    participant PythonServer as Python MCP Server<br/>(Math/Text Tools)
+
+    User->>Host: Natural language query<br/>("Add 5 and 10")
+
+    Host->>LLM: Analyze query and determine<br/>tool + parameters
+    LLM-->>Host: Tool plan<br/>{"tool": "add_numbers", "inputs": {"a": 5, "b": 10}}
+
+    Note over Host: Route to appropriate server
+
+    alt Tool found in Go Server
+        Host->>GoClient: Call tool request
+        GoClient->>GoServer: JSON-RPC call<br/>(tools/call)
+        GoServer-->>GoClient: Tool response
+        GoClient-->>Host: Result
+    else Tool found in Python Server
+        Host->>PythonClient: Call tool request
+        PythonClient->>PythonServer: JSON-RPC call<br/>(tools/call)
+        PythonServer-->>PythonClient: Tool response
+        PythonClient-->>Host: Result
+    end
+
+    Host-->>User: Final response<br/>("The sum of 5 and 10 is 15")
+```
+
+## MCP Server Tools
+
+### Go MCP Server (Port 8090)
+
+The Go server provides user management functionality with the following tools:
+
+- **`get_user`** - Retrieve user information by user ID
+
+  - Input: `user_id` (string, required)
+  - Returns: User details including name, email, and age
+
+- **`create_user`** - Create a new user in the system
+  - Input:
+    - `user_id` (string, required)
+    - `name` (string, required)
+    - `email` (string, required)
+    - `age` (number, optional, minimum: 0)
+  - Returns: Confirmation of user creation
+
+The server comes pre-populated with sample users (Alice, Bob, Charlie) and uses in-memory storage.
+
+### Python MCP Server (Port 9000)
+
+The Python server provides mathematical and text processing tools:
+
+- **`add_numbers`** - Add two numbers together
+
+  - Input: `a` (float), `b` (float)
+  - Returns: Sum of the two numbers
+
+- **`multiply_numbers`** - Multiply two numbers together
+
+  - Input: `a` (float), `b` (float)
+  - Returns: Product of the two numbers
+
+- **`process_text`** - Process text with various operations
+  - Input:
+    - `text` (string)
+    - `operation` (string) - Available: "upper", "lower", "reverse"
+  - Returns: Processed text based on the operation
+
+## MCP Server Tools
+
+### Go MCP Server (Port 8090)
+
+The Go server provides user management functionality with the following tools:
+
+- **`get_user`** - Retrieve user information by user ID
+
+  - Input: `user_id` (string, required)
+  - Returns: User details including name, email, and age
+
+- **`create_user`** - Create a new user in the system
+  - Input:
+    - `user_id` (string, required)
+    - `name` (string, required)
+    - `email` (string, required)
+    - `age` (number, optional, minimum: 0)
+  - Returns: Confirmation of user creation
+
+The server comes pre-populated with sample users (Alice, Bob, Charlie) and uses in-memory storage.
+
+### Python MCP Server (Port 9000)
+
+The Python server provides mathematical and text processing tools:
+
+- **`add_numbers`** - Add two numbers together
+
+  - Input: `a` (float), `b` (float)
+  - Returns: Sum of the two numbers
+
+- **`multiply_numbers`** - Multiply two numbers together
+
+  - Input: `a` (float), `b` (float)
+  - Returns: Product of the two numbers
+
+- **`process_text`** - Process text with various operations
+  - Input:
+    - `text` (string)
+    - `operation` (string) - Available: "upper", "lower", "reverse"
+  - Returns: Processed text based on the operation
+
+## What the Demo Does
+
+The demo application showcases an intelligent tool orchestration system where:
+
+1. **User Query Processing**: The host receives natural language queries from users
+2. **LLM Analysis**: The DeepSeek API analyzes the query to determine which tool to call and with what parameters
+3. **Tool Selection**: The host automatically routes the request to the appropriate MCP server (Go or Python)
+4. **Tool Execution**: The selected tool is executed with the LLM-determined parameters
+5. **Response**: Results are returned to the user
+
+### Example Interactions
+
+The demo runs three example queries:
+
+1. **"Read user with Id 2"** → Calls `get_user` tool on the Go server
+2. **"Create a new user with Id [timestamp], name 'John Doe', email 'jhondoe at example.com', age 30"** → Calls `create_user` tool on the Go server
+3. **"Add two numbers 5 and 10"** → Calls `add_numbers` tool on the Python server
+
+## Running the Demo
+
+### Prerequisites
+
+- Docker and Docker Compose
+- DeepSeek API key
+
+### Quick Start
+
+1. Set your DeepSeek API key:
+
+   ```bash
+   export DEEPSEEK_API_KEY="your-api-key-here"
+   ```
+
+2. Run the demo:
+
+   ```bash
+   make run-demo
+   ```
+
+   Or manually with Docker Compose:
+
+   ```bash
+   DEEPSEEK_API_KEY="your-api-key" make run-demo
+   ```
+
+### Manual Testing
+
+You can also test the MCP servers directly using curl:
+
+#### Get tools list from Go MCP server
+
+- Start the Go MCP server if it's not started yet
+
+```bash
+  cd mcp-server-go && make run
+```
+
+- Ask for available tools
+
+```bash
 curl --request POST \
   --url http://localhost:8090/mcp \
   --header 'Accept: application/json, text/event-stream' \
   --header 'Content-Type: application/json' \
-  --header 'User-Agent: insomnia/11.2.0' \
   --data '{
   "jsonrpc": "2.0",
   "id": 2,
@@ -16,61 +198,57 @@ curl --request POST \
 }'
 ```
 
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 2,
-  "result": {
-    "tools": [
-      {
-        "annotations": {
-          "readOnlyHint": false,
-          "destructiveHint": true,
-          "idempotentHint": false,
-          "openWorldHint": true
-        },
-        "description": "Create a new user",
-        "inputSchema": {
-          "properties": {
-            "age": {
-              "minimum": 0,
-              "type": "number"
-            },
-            "email": {
-              "type": "string"
-            },
-            "name": {
-              "type": "string"
-            },
-            "user_id": {
-              "type": "string"
-            }
-          },
-          "required": ["user_id", "name", "email"],
-          "type": "object"
-        },
-        "name": "create_user"
-      },
-      {
-        "annotations": {
-          "readOnlyHint": false,
-          "destructiveHint": true,
-          "idempotentHint": false,
-          "openWorldHint": true
-        },
-        "description": "Get user information",
-        "inputSchema": {
-          "properties": {
-            "user_id": {
-              "type": "string"
-            }
-          },
-          "required": ["user_id"],
-          "type": "object"
-        },
-        "name": "get_user"
-      }
-    ]
-  }
-}
+#### Test user creation
+
+- Start the Go MCP server if it's not started yet
+
+```bash
+  cd mcp-server-go && make run
 ```
+
+- Create the new user
+
+```bash
+curl --request POST \
+  --url http://localhost:8090/mcp \
+  --header 'Accept: application/json, text/event-stream' \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "create_user",
+    "arguments": {
+      "user_id": "test123",
+      "name": "Test User",
+      "email": "test@example.com",
+      "age": 25
+    }
+  }
+}'
+```
+
+## Project Structure
+
+```text
+mcp-example/
+├── mcp-host/              # Go-based MCP host application
+│   ├── cmd/main.go        # Main application entry point
+│   └── pkg/mcphost/       # Host implementation and LLM integration
+├── mcp-server-go/         # Go MCP server for user management
+│   ├── cmd/main.go        # Server entry point
+│   └── internal/mcpserver/ # User management tools implementation
+├── mcp-server-python/     # Python MCP server for math/text tools
+│   └── mcp-server.py      # FastMCP-based server implementation
+├── scripts/               # Utility scripts
+└── docker-compose.yml     # Multi-container orchestration
+```
+
+## Key Features
+
+- **Multi-language MCP ecosystem**: Demonstrates interoperability between Go and Python MCP servers
+- **LLM-powered tool orchestration**: Uses AI to intelligently select and call appropriate tools
+- **Automatic server routing**: Host application automatically tries both servers to find the right tool
+- **Containerized deployment**: Full Docker Compose setup for easy testing and deployment
+- **Health checks**: Robust container health monitoring and startup coordination
