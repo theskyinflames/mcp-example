@@ -78,6 +78,10 @@ The DeepSeek integration requires an API key that must be set as an environment 
 export DEEPSEEK_API_KEY="your-deepseek-api-key"
 ```
 
+> **Security Note:** 
+> - Keep your API key secure and do not commit it to version control systems (e.g., Git).
+> - Use environment variable managers or secret management tools to store API keys securely.
+> - Restrict the permissions of your API key to the minimum necessary for your application.
 The host application communicates with DeepSeek via HTTPS API calls to analyze queries and receive tool execution plans, making the system capable of handling complex, multi-step reasoning tasks through natural language interfaces.
 
 ## MCP Server Tools
