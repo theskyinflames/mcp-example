@@ -44,6 +44,42 @@ sequenceDiagram
     Host-->>User: Final response<br/>("The sum of 5 and 10 is 15")
 ```
 
+## LLM Integration with DeepSeek
+
+This project uses **DeepSeek API** as the Large Language Model (LLM) to provide intelligent tool orchestration capabilities. DeepSeek serves as the "brain" of the system, analyzing natural language queries and determining the appropriate tools to call.
+
+### DeepSeek's Role
+
+1. **Natural Language Understanding**: DeepSeek analyzes user queries written in plain English to understand the intent and extract relevant parameters
+
+2. **Tool Selection**: Based on the available tool schemas from both MCP servers, DeepSeek determines which specific tool should be called to fulfill the user's request
+
+3. **Parameter Extraction**: The LLM extracts and formats the necessary parameters from the user query into the correct data types and structure required by the target tool
+
+4. **Response Planning**: DeepSeek generates a structured JSON response containing:
+   - The tool name to be called
+   - The input parameters with proper types and values
+   - Any validation or preprocessing needed
+
+### Example LLM Processing
+
+For a user query like **"Add 5 and 10"**, DeepSeek:
+
+1. **Understands** that this is a mathematical operation
+2. **Identifies** that the `add_numbers` tool from the Python server should be used
+3. **Extracts** the numbers `5` and `10` as the `a` and `b` parameters
+4. **Returns** a structured plan: `{"tool": "add_numbers", "inputs": {"a": 5, "b": 10}}`
+
+### Configuration
+
+The DeepSeek integration requires an API key that must be set as an environment variable:
+
+```bash
+export DEEPSEEK_API_KEY="your-deepseek-api-key"
+```
+
+The host application communicates with DeepSeek via HTTPS API calls to analyze queries and receive tool execution plans, making the system capable of handling complex, multi-step reasoning tasks through natural language interfaces.
+
 ## MCP Server Tools
 
 ### Go MCP Server (Port 8090)
