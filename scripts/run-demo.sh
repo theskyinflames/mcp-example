@@ -12,4 +12,4 @@ if [ -z "$API_KEY" ]; then
 fi 
 
 # Run the MCP demo
-DEEPSEEK_API_KEY="$API_KEY" docker-compose up --build
+DEEPSEEK_API_KEY="$API_KEY" docker-compose up --build --abort-on-container-exit
