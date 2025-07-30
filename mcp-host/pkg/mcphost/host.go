@@ -56,7 +56,7 @@ func (l *MCPHost) RunUserQuery(ctx context.Context, query string) (string, error
 	if err := json.Unmarshal([]byte(planJSON), &plan); err != nil {
 		// This is a fallback if the LLM does not return a valid JSON for tool calling
 		// or if the response is a direct answer instead of a tool call plan.
-		return "", fmt.Errorf("Failed to parse LLM plan from JSON: %v", err) // Exit if we can't parse a tool call
+		return "", fmt.Errorf("failed to parse LLM plan from JSON: %v", err) // Exit if we can't parse a tool call
 	}
 
 	// Check if a tool name was actually provided by the LLM
@@ -78,17 +78,17 @@ func (l *MCPHost) RunUserQuery(ctx context.Context, query string) (string, error
 		log.Printf("Tool '%s' not found in Go server, trying Python server: %v", plan.ToolName, err)
 		response, err = l.mcpClientPython.CallTool(ctx, request)
 		if err != nil {
-			return "", fmt.Errorf("Tool call failed on both servers: %v", err)
+			return "", fmt.Errorf("tool call failed on both servers: %v", err)
 		}
 	}
 
 	if response.IsError {
-		return "", fmt.Errorf("Tool call error: %s", response.Content)
+		return "", fmt.Errorf("tool call error: %s", response.Content)
 	}
 
 	textResponse, ok := mcp.AsTextContent(response.Content[0])
 	if !ok {
-		return "", fmt.Errorf("Tool call did not return text content: %v", response.Content)
+		return "", fmt.Errorf("tool call did not return text content: %v", response.Content)
 	}
 
 	return textResponse.Text, nil

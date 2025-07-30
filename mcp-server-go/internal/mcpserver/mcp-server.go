@@ -66,7 +66,11 @@ func NewMCPServer() (MCPServer, error) {
 // It listens for incoming requests and handles tool calls as defined in the MCP server.
 func (s MCPServer) Start(address string) error {
 	// start the MCP server spec handler
-	go startOpenAPIServer()
+	go func() {
+		if err := startOpenAPIServer(); err != nil {
+			log.Fatalf("Failed to start OpenAPI spec server: %v", err)
+		}
+	}()
 
 	// Start StreamableHTTP server
 	log.Println("Starting StreamableHTTP server on :8090")
