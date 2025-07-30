@@ -78,52 +78,13 @@ The DeepSeek integration requires an API key that must be set as an environment 
 export DEEPSEEK_API_KEY="your-deepseek-api-key"
 ```
 
-> **Security Note:** 
+> **Security Note:**
+>
 > - Keep your API key secure and do not commit it to version control systems (e.g., Git).
 > - Use environment variable managers or secret management tools to store API keys securely.
 > - Restrict the permissions of your API key to the minimum necessary for your application.
+
 The host application communicates with DeepSeek via HTTPS API calls to analyze queries and receive tool execution plans, making the system capable of handling complex, multi-step reasoning tasks through natural language interfaces.
-
-## MCP Server Tools
-
-### Go MCP Server (Port 8090)
-
-The Go server provides user management functionality with the following tools:
-
-- **`get_user`** - Retrieve user information by user ID
-
-  - Input: `user_id` (string, required)
-  - Returns: User details including name, email, and age
-
-- **`create_user`** - Create a new user in the system
-  - Input:
-    - `user_id` (string, required)
-    - `name` (string, required)
-    - `email` (string, required)
-    - `age` (number, optional, minimum: 0)
-  - Returns: Confirmation of user creation
-
-The server comes pre-populated with sample users (Alice, Bob, Charlie) and uses in-memory storage.
-
-### Python MCP Server (Port 9000)
-
-The Python server provides mathematical and text processing tools:
-
-- **`add_numbers`** - Add two numbers together
-
-  - Input: `a` (float), `b` (float)
-  - Returns: Sum of the two numbers
-
-- **`multiply_numbers`** - Multiply two numbers together
-
-  - Input: `a` (float), `b` (float)
-  - Returns: Product of the two numbers
-
-- **`process_text`** - Process text with various operations
-  - Input:
-    - `text` (string)
-    - `operation` (string) - Available: "upper", "lower", "reverse"
-  - Returns: Processed text based on the operation
 
 ## MCP Server Tools
 
