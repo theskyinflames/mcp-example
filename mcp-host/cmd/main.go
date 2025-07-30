@@ -96,6 +96,16 @@ func runExamples(ctx context.Context, llmApp *mcphost.MCPHost) error {
 	// Print the response from the tool
 	fmt.Println("Add numbers response:", response)
 
+	// Run another tool example to reverse a string
+	q = "Reverse the string 'Hello World'"
+	fmt.Println("\n\nRunning user query:", q)
+	response, err = llmApp.RunUserQuery(ctx, q)
+	if err != nil {
+		return fmt.Errorf("failed to run user query: %w", err)
+	}
+	// Print the response from the tool
+	fmt.Println("Reverse string response:", response)
+
 	return nil
 }
 
