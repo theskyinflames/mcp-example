@@ -24,6 +24,8 @@ func openaiSpecHndler() http.HandlerFunc {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(openAPISpec)
+		if _, err := w.Write(openAPISpec); err != nil {
+			http.Error(w, "Failed to write OpenAPI spec", http.StatusInternalServerError)
+		}
 	}
 }
