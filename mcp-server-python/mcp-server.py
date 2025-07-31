@@ -48,7 +48,6 @@ def get_health() -> HealthCheck:
 # Initialize FastMCP server
 mcp = FastMCP("Math and Text Server")
 
-
 @mcp.tool()
 async def add_numbers(a: float, b: float) -> str:
     """Add two numbers together"""
