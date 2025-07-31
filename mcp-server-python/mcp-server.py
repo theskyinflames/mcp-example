@@ -15,6 +15,7 @@ import threading
 # ------------------------------------------------ FastAPI Setup ----------------------------------------------
 app = FastAPI()
 
+
 class HealthCheck(BaseModel):
     """Response model to validate and return when performing a health check."""
 
@@ -41,12 +42,13 @@ def get_health() -> HealthCheck:
     """
     return HealthCheck(status="OK")
 
+
 # ---------------------------------------------- MCP Tools ----------------------------------------------
 
 # Initialize FastMCP server
 mcp = FastMCP("Math and Text Server")
-@mcp.tool()
 
+@mcp.tool()
 async def add_numbers(a: float, b: float) -> str:
     """Add two numbers together"""
     result = a + b
@@ -87,22 +89,19 @@ def main():
     print("  - multiply_numbers: Multiply two numbers together")
     print("  - process_text: Process text with various operations")
 
-    # Use the FastMCP's run method which handles the transport automatically
-    # This is the correct way to start a FastMCP server
-    #mcp.run(transport="http", host="0.0.0.0", port=9000)
-
-     # Start FastAPI server in a separate thread
+    # Start FastAPI server in a separate thread
     def start_fastapi():
         uvicorn.run(app, host="0.0.0.0", port=9001)
-    
+
     fastapi_thread = threading.Thread(target=start_fastapi, daemon=True)
     fastapi_thread.start()
-    
+
     print("FastAPI health endpoint started on http://0.0.0.0:9001/health")
-    
+
     # Start the MCP server (this blocks)
     print("Starting MCP JSON-RPC server on http://0.0.0.0:9000")
     mcp.run(transport="http", host="0.0.0.0", port=9000)
+
 
 if __name__ == "__main__":
     main()
