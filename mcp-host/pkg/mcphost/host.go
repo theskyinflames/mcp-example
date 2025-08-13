@@ -49,7 +49,7 @@ func (l *MCPHost) RunUserQuery(ctx context.Context, query string) (string, error
 	if err != nil {
 		log.Fatalf("LLM call failed: %v", err)
 	}
-	log.Println("LLM output (raw JSON):", planJSON)
+	// log.Println("LLM output (raw JSON):", planJSON)
 
 	// Step 2: Parse the LLM's plan
 	var plan LLMToolCallPlan
@@ -75,7 +75,7 @@ func (l *MCPHost) RunUserQuery(ctx context.Context, query string) (string, error
 	response, err := l.mcpClient.CallTool(ctx, request)
 	if err != nil {
 		// If the tool is not found in the Go server, try the Python server
-		log.Printf("Tool '%s' not found in Go server, trying Python server: %v", plan.ToolName, err)
+		// log.Printf("Tool '%s' not found in Go server, trying Python server: %v", plan.ToolName, err)
 		response, err = l.mcpClientPython.CallTool(ctx, request)
 		if err != nil {
 			return "", fmt.Errorf("tool call failed on both servers: %v", err)

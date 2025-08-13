@@ -1,3 +1,5 @@
+// Package main provides the MCP host application entry point.
+// It integrates with LLM services and MCP servers to provide intelligent tool orchestration.
 package main
 
 import (
@@ -57,8 +59,17 @@ func main() {
 		log.Fatalf("Failed to create LLM application: %v", err)
 	}
 
-	if err := runExamples(ctx, llmApp); err != nil {
-		log.Fatalf("Failed to run examples: %v", err)
+	// Check if we can run the UI (TTY available)
+	if isTTYAvailable() {
+		if err := mcphost.RunUI(ctx, llmApp); err != nil {
+			log.Fatalf("Failed to run UI: %v", err)
+		}
+	} else {
+		// Fallback to examples mode when debugging or no TTY available
+		log.Println("TTY not available (debugging mode detected). Running examples instead of UI.")
+		if err := runExamples(ctx, llmApp); err != nil {
+			log.Fatalf("Failed to run examples: %v", err)
+		}
 	}
 }
 
@@ -194,4 +205,18 @@ func pythonMCPServerAddr() string {
 	fmt.Printf("Using Python MCP server address: %s\n", addr)
 
 	return addr
+}
+
+// isTTYAvailable checks if a TTY is available for the Bubble Tea UI
+func isTTYAvailable() bool {
+	// Force TTY mode - uncomment the line below to always try UI mode
+	// return true
+
+	// Check if stdout is connected to a terminal
+	fileInfo, err := os.Stdout.Stat()
+	if err != nil {
+		return false
+	}
+	// Check if it's a character device (terminal)
+	return (fileInfo.Mode() & os.ModeCharDevice) != 0
 }

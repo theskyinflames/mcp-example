@@ -1,0 +1,92 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "StreamableHTTP API Server",
+    "version": "1.0.0",
+    "description": "An MCP server with user management tools."
+  },
+  "paths": {
+    "/": {
+      "post": {
+        "summary": "Call a tool",
+        "description": "Executes a tool defined in the MCP server.",
+        "requestBody": {
+          "description": "A tool call request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CallToolRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The result of the tool call",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CallToolResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CallToolRequest": {
+        "oneOf": [
+          { "$ref": "#/components/schemas/GetUserCall" },
+          { "$ref": "#/components/schemas/CreateUserCall" }
+        ],
+        "discriminator": {
+          "propertyName": "tool"
+        }
+      },
+      "GetUserCall": {
+        "type": "object",
+        "properties": {
+          "tool": { "type": "string", "enum": ["get_user"] },
+          "inputs": {
+            "type": "object",
+            "properties": {
+              "user_id": { "type": "string", "description": "The user's ID" }
+            },
+            "required": ["user_id"]
+          }
+        },
+        "required": ["tool", "inputs"]
+      },
+      "CreateUserCall": {
+        "type": "object",
+        "properties": {
+          "tool": { "type": "string", "enum": ["create_user"] },
+          "inputs": {
+            "type": "object",
+            "properties": {
+              "user_id": { "type": "string" },
+              "name": { "type": "string" },
+              "email": { "type": "string" },
+              "age": { "type": "number" }
+            },
+            "required": ["user_id", "name", "email"]
+          }
+        },
+        "required": ["tool", "inputs"]
+      },
+      "CallToolResult": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "string",
+            "description": "The result of the tool execution."
+          }
+        }
+      }
+    }
+  }
+}

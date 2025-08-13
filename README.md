@@ -145,6 +145,83 @@ The demo runs three example queries:
 2. **"Create a new user with Id [timestamp], name 'John Doe', email 'jhondoe at example.com', age 30"** → Calls `create_user` tool on the Go server
 3. **"Add two numbers 5 and 10"** → Calls `add_numbers` tool on the Python server
 
+## Interactive UI with Bubble Tea
+
+The MCP host application features a modern terminal user interface built with the [Bubble Tea](https://github.com/charmbracelet/bubbletea) library, providing an interactive way to communicate with MCP servers.
+
+### UI Features
+
+- **💬 Interactive Query Input**: Type natural language queries and get real-time responses
+- **📋 OpenAPI Specification Viewer**: Browse MCP server documentation directly in the terminal
+- **⚡ Real-time Processing**: See spinner animations while queries are being processed
+- **🎨 Syntax Highlighting**: Color-coded responses and error messages
+- **⌨️ Keyboard Shortcuts**: Efficient navigation with hotkeys
+
+### How to Use the UI
+
+#### **Basic Interaction**
+
+1. **Enter Queries**: Type your natural language request in the input field
+
+   ```text
+   Enter your query:
+   > Add 15 and 25
+   ```
+
+2. **Submit**: Press `Enter` to send your query to the MCP servers
+
+3. **View Results**: The LLM will analyze your request, select the appropriate tool, and display the response
+
+#### **Keyboard Shortcuts**
+
+| Key Combination | Action                                         |
+| --------------- | ---------------------------------------------- |
+| `Enter`         | Submit query to MCP servers                    |
+| `Ctrl+O`        | Toggle Go MCP Server OpenAPI specification     |
+| `Ctrl+Y`        | Toggle Python MCP Server OpenAPI specification |
+| `Ctrl+R`        | Reset/clear current query and response         |
+| `Q` or `Ctrl+C` | Quit application                               |
+
+#### **OpenAPI Specification Viewer**
+
+The UI includes built-in viewers for both MCP servers' OpenAPI specifications:
+
+- **Go Server Spec** (`Ctrl+O`): View user management tools documentation
+- **Python Server Spec** (`Ctrl+Y`): View math and text processing tools documentation
+
+Navigate through the specifications using:
+
+- `↑/↓` or `j/k`: Scroll up/down
+- `Page Up/Page Down`: Fast scroll
+- `Home/End`: Jump to beginning/end
+
+#### **Example Usage Session**
+
+```bash
+# In the UI:
+> Create a user with name Alice and email alice@example.com
+→ Response: User created successfully with ID 1234567890
+
+> Add 42 and 58
+→ Response: The sum of 42 and 58 is 100
+
+> Convert "hello world" to uppercase
+→ Response: Uppercase: HELLO WORLD
+
+# Press Ctrl+O to view Go server documentation
+# Press Ctrl+Y to view Python server documentation
+# Press Q to quit
+```
+
+### UI vs Command Line Mode
+
+The application automatically detects the environment:
+
+- **TTY Available**: Runs the interactive Bubble Tea UI
+- **No TTY** (debugging/CI): Falls back to command-line examples mode
+
+This ensures the application works in both development and production environments.
+
 ## Running the Demo
 
 ### Prerequisites
@@ -248,8 +325,11 @@ mcp-example/
 
 ## Key Features
 
+- **Interactive Terminal UI**: Modern Bubble Tea-based interface with real-time query processing
 - **Multi-language MCP ecosystem**: Demonstrates interoperability between Go and Python MCP servers
 - **LLM-powered tool orchestration**: Uses AI to intelligently select and call appropriate tools
+- **Built-in Documentation Viewer**: Browse OpenAPI specifications directly in the terminal
 - **Automatic server routing**: Host application automatically tries both servers to find the right tool
+- **Environment Detection**: Automatically switches between UI and CLI mode based on TTY availability
 - **Containerized deployment**: Full Docker Compose setup for easy testing and deployment
 - **Health checks**: Robust container health monitoring and startup coordination

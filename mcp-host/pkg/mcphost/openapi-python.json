@@ -1,0 +1,410 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "MCP Math and Text Server Tools",
+    "description": "Model Context Protocol server providing mathematical and text processing tools",
+    "version": "1.12.0",
+    "contact": {
+      "name": "MCP Example Project",
+      "url": "https://github.com/theskyinflames/mcp-example"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:9000",
+      "description": "MCP JSON-RPC Server"
+    }
+  ],
+  "paths": {
+    "/message": {
+      "post": {
+        "tags": ["MCP Tools"],
+        "summary": "Call MCP Tools",
+        "description": "JSON-RPC endpoint for calling MCP tools",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "title": "Add Numbers Tool",
+                    "properties": {
+                      "jsonrpc": {
+                        "type": "string",
+                        "enum": ["2.0"]
+                      },
+                      "id": {
+                        "type": "integer"
+                      },
+                      "method": {
+                        "type": "string",
+                        "enum": ["tools/call"]
+                      },
+                      "params": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "enum": ["add_numbers"]
+                          },
+                          "arguments": {
+                            "type": "object",
+                            "properties": {
+                              "a": {
+                                "type": "number",
+                                "description": "First number to add"
+                              },
+                              "b": {
+                                "type": "number",
+                                "description": "Second number to add"
+                              }
+                            },
+                            "required": ["a", "b"]
+                          }
+                        },
+                        "required": ["name", "arguments"]
+                      }
+                    },
+                    "required": ["jsonrpc", "id", "method", "params"]
+                  },
+                  {
+                    "type": "object",
+                    "title": "Multiply Numbers Tool",
+                    "properties": {
+                      "jsonrpc": {
+                        "type": "string",
+                        "enum": ["2.0"]
+                      },
+                      "id": {
+                        "type": "integer"
+                      },
+                      "method": {
+                        "type": "string",
+                        "enum": ["tools/call"]
+                      },
+                      "params": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "enum": ["multiply_numbers"]
+                          },
+                          "arguments": {
+                            "type": "object",
+                            "properties": {
+                              "a": {
+                                "type": "number",
+                                "description": "First number to multiply"
+                              },
+                              "b": {
+                                "type": "number",
+                                "description": "Second number to multiply"
+                              }
+                            },
+                            "required": ["a", "b"]
+                          }
+                        },
+                        "required": ["name", "arguments"]
+                      }
+                    },
+                    "required": ["jsonrpc", "id", "method", "params"]
+                  },
+                  {
+                    "type": "object",
+                    "title": "Process Text Tool",
+                    "properties": {
+                      "jsonrpc": {
+                        "type": "string",
+                        "enum": ["2.0"]
+                      },
+                      "id": {
+                        "type": "integer"
+                      },
+                      "method": {
+                        "type": "string",
+                        "enum": ["tools/call"]
+                      },
+                      "params": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "enum": ["process_text"]
+                          },
+                          "arguments": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string",
+                                "description": "Text to process"
+                              },
+                              "operation": {
+                                "type": "string",
+                                "enum": ["upper", "lower", "reverse"],
+                                "description": "Operation to perform on the text"
+                              }
+                            },
+                            "required": ["text", "operation"]
+                          }
+                        },
+                        "required": ["name", "arguments"]
+                      }
+                    },
+                    "required": ["jsonrpc", "id", "method", "params"]
+                  },
+                  {
+                    "type": "object",
+                    "title": "List Tools",
+                    "properties": {
+                      "jsonrpc": {
+                        "type": "string",
+                        "enum": ["2.0"]
+                      },
+                      "id": {
+                        "type": "integer"
+                      },
+                      "method": {
+                        "type": "string",
+                        "enum": ["tools/list"]
+                      },
+                      "params": {
+                        "type": "object"
+                      }
+                    },
+                    "required": ["jsonrpc", "id", "method", "params"]
+                  }
+                ]
+              },
+              "examples": {
+                "add_numbers_example": {
+                  "summary": "Add two numbers",
+                  "value": {
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "tools/call",
+                    "params": {
+                      "name": "add_numbers",
+                      "arguments": {
+                        "a": 5,
+                        "b": 10
+                      }
+                    }
+                  }
+                },
+                "multiply_numbers_example": {
+                  "summary": "Multiply two numbers",
+                  "value": {
+                    "jsonrpc": "2.0",
+                    "id": 2,
+                    "method": "tools/call",
+                    "params": {
+                      "name": "multiply_numbers",
+                      "arguments": {
+                        "a": 6,
+                        "b": 7
+                      }
+                    }
+                  }
+                },
+                "process_text_example": {
+                  "summary": "Process text (uppercase)",
+                  "value": {
+                    "jsonrpc": "2.0",
+                    "id": 3,
+                    "method": "tools/call",
+                    "params": {
+                      "name": "process_text",
+                      "arguments": {
+                        "text": "hello world",
+                        "operation": "upper"
+                      }
+                    }
+                  }
+                },
+                "list_tools_example": {
+                  "summary": "List available tools",
+                  "value": {
+                    "jsonrpc": "2.0",
+                    "id": 4,
+                    "method": "tools/list",
+                    "params": {}
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful tool execution",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "jsonrpc": {
+                      "type": "string",
+                      "enum": ["2.0"]
+                    },
+                    "id": {
+                      "type": "integer"
+                    },
+                    "result": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "title": "Tool Call Result",
+                          "properties": {
+                            "content": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": ["text"]
+                                  },
+                                  "text": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "isError": {
+                              "type": "boolean"
+                            }
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "title": "Tools List Result",
+                          "properties": {
+                            "tools": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "inputSchema": {
+                                    "type": "object"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "examples": {
+                  "add_result": {
+                    "summary": "Addition result",
+                    "value": {
+                      "jsonrpc": "2.0",
+                      "id": 1,
+                      "result": {
+                        "content": [
+                          {
+                            "type": "text",
+                            "text": "The sum of 5 and 10 is 15"
+                          }
+                        ],
+                        "isError": false
+                      }
+                    }
+                  },
+                  "tools_list": {
+                    "summary": "Available tools",
+                    "value": {
+                      "jsonrpc": "2.0",
+                      "id": 4,
+                      "result": {
+                        "tools": [
+                          {
+                            "name": "add_numbers",
+                            "description": "Add two numbers together",
+                            "inputSchema": {
+                              "type": "object",
+                              "properties": {
+                                "a": {
+                                  "type": "number"
+                                },
+                                "b": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": ["a", "b"]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - invalid JSON-RPC format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "jsonrpc": {
+                      "type": "string",
+                      "enum": ["2.0"]
+                    },
+                    "id": {
+                      "type": "integer"
+                    },
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "integer"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MCPTool": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Tool name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Tool description"
+          },
+          "inputSchema": {
+            "type": "object",
+            "description": "JSON Schema for tool input parameters"
+          }
+        }
+      }
+    }
+  }
+}
