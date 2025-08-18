@@ -6,7 +6,6 @@ import (
 	"math"
 	"strings"
 	"sync"
-	"time"
 
 	_ "embed"
 
@@ -23,8 +22,6 @@ var openapiSpecGo string
 //go:embed openapi-python.json
 var openapiPython string
 
-const queryFinishedMsg = "Query finished"
-
 type queryResult struct {
 	response string
 	isError  bool
@@ -33,7 +30,7 @@ type queryResult struct {
 type queryResultCmd tea.Cmd
 
 func queryResultCmdFunc(qr queryResult) queryResultCmd {
-	response := infoStyle.Render(fmt.Sprintf("%s", qr.response))
+	response := infoStyle.Render(qr.response)
 	if qr.isError {
 		response = errStyle.Render(fmt.Sprintf("Error: %s", qr.response))
 	}
@@ -64,11 +61,6 @@ var (
 	spinnerStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("blue"))
 )
 
-type result struct {
-	duration time.Duration
-	emoji    string
-}
-
 type model struct {
 	llmApp *MCPHost
 	ctx    context.Context
@@ -83,7 +75,6 @@ type model struct {
 	query    textinput.Model
 	response *textinput.Model
 	working  *bool
-	ticks    int
 	spinner  spinner.Model
 
 	appChan chan tea.Msg
@@ -220,8 +211,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, cmd)
 	}
 
-	m.query, cmd = m.query.Update(msg)
-
 	if *m.working {
 		cmds = append(cmds, m.spinner.Tick)
 	}
@@ -241,7 +230,7 @@ func (m model) View() string {
 
 	if *m.working {
 		sb.WriteString("Processing your request...\n\n")
-		sb.WriteString(m.spinner.View())
+		sb.WriteString(spinnerStyle.Render(m.spinner.View()))
 		sb.WriteString("\n\n")
 	}
 

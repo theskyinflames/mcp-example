@@ -21,7 +21,7 @@ func NewClient(ctx context.Context, URL string) (*client.Client, error) {
 	// Create HTTP transport
 	httpTransport, err := transport.NewStreamableHTTP(URL + "/mcp")
 	if err != nil {
-		return nil, fmt.Errorf("Failed to create HTTP transport: %v", err)
+		return nil, fmt.Errorf("create HTTP transport: %v", err)
 	}
 
 	// Create client with the transport
@@ -29,16 +29,16 @@ func NewClient(ctx context.Context, URL string) (*client.Client, error) {
 
 	// Start the client
 	if err := c.Start(ctx); err != nil {
-		return nil, fmt.Errorf("Failed to start client: %v", err)
+		return nil, fmt.Errorf("start client: %v", err)
 	}
 
 	// Set up notification handler
 	c.OnNotification(func(notification mcp.JSONRPCNotification) {
-		fmt.Printf("Received notification: %s\n", notification.Method)
+		log.Printf("Received notification: %s\n", notification.Method)
 	})
 
 	// Initialize the client
-	fmt.Println("Initializing client...")
+	log.Println("Initializing client...")
 	initRequest := mcp.InitializeRequest{}
 	initRequest.Params.ProtocolVersion = mcp.LATEST_PROTOCOL_VERSION
 	initRequest.Params.ClientInfo = mcp.Implementation{
@@ -49,14 +49,14 @@ func NewClient(ctx context.Context, URL string) (*client.Client, error) {
 
 	serverInfo, err := c.Initialize(ctx, initRequest)
 	if err != nil {
-		log.Fatalf("Failed to initialize: %v", err)
+		log.Fatalf("initialize: %v", err)
 	}
 
 	// Display server information
-	fmt.Printf("Connected to server: %s (version %s)\n",
+	log.Printf("Connected to server: %s (version %s)\n",
 		serverInfo.ServerInfo.Name,
 		serverInfo.ServerInfo.Version)
-	fmt.Printf("Server capabilities: %+v\n", serverInfo.Capabilities)
+	log.Printf("Server capabilities: %+v\n", serverInfo.Capabilities)
 
 	return c, nil
 }
@@ -75,7 +75,7 @@ func MCPToolsSchemaGoSrv(ctx context.Context, c *client.Client) (string, error) 
 
 	goTools, err := json.Marshal(response)
 	if err != nil {
-		return "", fmt.Errorf("failed to marshal tools: %v", err)
+		return "", fmt.Errorf("marshal tools: %v", err)
 	}
 
 	return string(goTools), nil
