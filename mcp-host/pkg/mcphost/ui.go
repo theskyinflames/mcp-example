@@ -3,6 +3,7 @@ package mcphost
 import (
 	"context"
 	"fmt"
+	"math"
 	"strings"
 	"sync"
 	"time"
@@ -107,7 +108,9 @@ func initializeModel(ctx context.Context, llmApp *MCPHost) model {
 			case <-ctx.Done():
 				return
 			case msg := <-m.appChan:
-				m.Update(msg)
+				_, _ = m.Update(msg)
+			default:
+				continue
 			}
 		}
 	}()
@@ -144,7 +147,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 		if k := msg.String(); k == "ctrl+o" || k == "ctrl+y" {
-			fmt.Println("K = ", k)
 			m.showViewport = !m.showViewport
 			m.viewport = viewport.New(80, 24) // default size, will be updated on resize
 			content := m.openapiGo
@@ -157,10 +159,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			m.viewport.SetContent(content)
 			m.viewPortTitle = &title
-			// m.ready = true
 		}
 		if k := msg.String(); k == "enter" && !m.isWorking() {
-			// Simulate a response for demonstration purposes
 			m.switchWorkingFlag()
 			m.spinner.Spinner = spinner.Line
 
@@ -282,10 +282,7 @@ func (m *model) isWorking() bool {
 }
 
 func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
+	return int(math.Max(float64(a), float64(b)))
 }
 
 // RunUI starts the user interface for the MCPHost.
