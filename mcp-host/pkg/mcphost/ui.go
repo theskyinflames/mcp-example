@@ -1,9 +1,9 @@
 package mcphost
 
 import (
+	"cmp"
 	"context"
 	"fmt"
-	"math"
 	"strings"
 	"sync"
 
@@ -98,7 +98,10 @@ func initializeModel(ctx context.Context, llmApp *MCPHost) model {
 			select {
 			case <-ctx.Done():
 				return
-			case msg := <-m.appChan:
+			case msg, ok := <-m.appChan:
+				if !ok {
+					return
+				}
 				_, _ = m.Update(msg)
 			default:
 				continue
@@ -271,7 +274,7 @@ func (m *model) isWorking() bool {
 }
 
 func max(a, b int) int {
-	return int(math.Max(float64(a), float64(b)))
+	return cmp.Max(a, b)
 }
 
 // RunUI starts the user interface for the MCPHost.
