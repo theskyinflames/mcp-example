@@ -1,9 +1,9 @@
 package mcphost
 
 import (
-	"cmp"
 	"context"
 	"fmt"
+	"math"
 	"strings"
 	"sync"
 
@@ -21,27 +21,6 @@ var openapiSpecGo string
 
 //go:embed openapi-python.json
 var openapiPython string
-
-type queryResult struct {
-	response string
-	isError  bool
-}
-
-type queryResultCmd tea.Cmd
-
-func queryResultCmdFunc(qr queryResult) queryResultCmd {
-	response := infoStyle.Render(qr.response)
-	if qr.isError {
-		response = errStyle.Render(fmt.Sprintf("Error: %s", qr.response))
-	}
-	return queryResultCmd(
-		func() tea.Msg {
-			return queryResult{
-				response: response,
-				isError:  qr.isError,
-			}
-		})
-}
 
 var (
 	titleStyle = func() lipgloss.Style {
@@ -72,42 +51,17 @@ type model struct {
 	viewPortTitle *string
 	viewport      viewport.Model
 
-	query    textinput.Model
-	response *textinput.Model
-	working  *bool
-	spinner  spinner.Model
-
-	appChan chan tea.Msg
+	query          textinput.Model
+	response       *textinput.Model
+	updateResponse *bool
+	working        *bool
+	spinner        spinner.Model
 
 	mux *sync.RWMutex
 }
 
-func (m *model) setQueryResult(response string, isError bool) {
-	m.appChan <- queryResultCmdFunc(queryResult{
-		response: response,
-		isError:  isError,
-	})
-}
-
 func initializeModel(ctx context.Context, llmApp *MCPHost) model {
 	var m model
-
-	m.appChan = make(chan tea.Msg, 10) // Buffered channel to handle messages
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case msg, ok := <-m.appChan:
-				if !ok {
-					return
-				}
-				_, _ = m.Update(msg)
-			default:
-				continue
-			}
-		}
-	}()
 
 	m.working = new(bool)
 	m.viewPortTitle = new(string)
@@ -163,7 +117,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if err != nil {
 					response = fmt.Sprintf("Error: %s", err.Error())
 				}
-				m.setQueryResult(response, err != nil)
+
+				m.setResponse(response)
+				m.switchWorkingFlag()
 			}()
 
 			return m, tea.Batch(
@@ -176,18 +132,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.query.Reset()
 			m.response.Reset()
 		}
-
-	case queryResultCmd:
-		qrCmd := msg().(queryResult)
-		var res string
-		if qrCmd.isError {
-			res = errStyle.Render(qrCmd.response)
-		} else {
-			res = qrCmd.response
-		}
-		m.response.SetValue(res)
-		m.switchWorkingFlag()
-		return m, cmd
 
 	case spinner.TickMsg:
 		if !m.isWorking() {
@@ -213,6 +157,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.viewport, cmd = m.viewport.Update(msg)
 		cmds = append(cmds, cmd)
 	}
+
+	m.query, cmd = m.query.Update(msg)
+	cmds = append(cmds, cmd)
 
 	if *m.working {
 		cmds = append(cmds, m.spinner.Tick)
@@ -273,8 +220,14 @@ func (m *model) isWorking() bool {
 	return *m.working
 }
 
+func (m *model) setResponse(response string) {
+	m.mux.Lock()
+	m.response.SetValue(response)
+	m.mux.Unlock()
+}
+
 func max(a, b int) int {
-	return cmp.Max(a, b)
+	return int(math.Max(float64(a), float64(b)))
 }
 
 // RunUI starts the user interface for the MCPHost.
