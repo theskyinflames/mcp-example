@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/mark3labs/mcp-go/client"
 	"github.com/mark3labs/mcp-go/client/transport"
@@ -13,7 +14,7 @@ import (
 // NewPythonClient creates a new MCP client that connects to the Python MCP server.
 // This client will communicate with the Python server using the JSON-RPC protocol.
 func NewPythonClient(ctx context.Context, URL string) (*client.Client, error) {
-	fmt.Println("Initializing HTTP client for Python server...")
+	log.Println("Initializing HTTP client for Python server...")
 
 	// The Python server's JSON-RPC transport listens on the /mcp path by default
 	httpTransport, err := transport.NewStreamableHTTP(URL + "/mcp")
@@ -35,7 +36,7 @@ func NewPythonClient(ctx context.Context, URL string) (*client.Client, error) {
 	})
 
 	// Initialize the client
-	fmt.Println("Initializing client for Python server...")
+	log.Println("Initializing client for Python server...")
 	initRequest := mcp.InitializeRequest{}
 	initRequest.Params.ProtocolVersion = mcp.LATEST_PROTOCOL_VERSION
 	initRequest.Params.ClientInfo = mcp.Implementation{
@@ -46,7 +47,7 @@ func NewPythonClient(ctx context.Context, URL string) (*client.Client, error) {
 
 	serverInfo, err := c.Initialize(ctx, initRequest)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to initialize with Python server: %v", err)
+		return nil, fmt.Errorf("initialize with Python server: %v", err)
 	}
 
 	// Display server information
@@ -73,7 +74,7 @@ func MCPToolsSchemaPythonSrv(ctx context.Context, mcpClient *client.Client) (str
 
 	pythonMCPSrvTools, err := json.Marshal(response)
 	if err != nil {
-		return "", fmt.Errorf("failed to marshal Python tools: %v", err)
+		return "", fmt.Errorf("marshal Python tools: %v", err)
 	}
 
 	return string(pythonMCPSrvTools), nil

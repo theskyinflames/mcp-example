@@ -1,4 +1,4 @@
-version: "3.8"
+#version: "3.8"
 
 services:
   # The MCP Server that the host connects to
@@ -56,6 +56,8 @@ services:
 
   # The MCP Host that depends on the server
   mcp-host:
+    tty: true # same as -t, allocates a pseudo-TTY
+    stdin_open: true # same as -i, keeps STDIN open
     build:
       context: ./mcp-host
       dockerfile: Dockerfile
@@ -75,6 +77,9 @@ services:
 
       # Pass the API key from a .env file or the host's environment
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+
+      # Ensure proper terminal settings for Bubble Tea
+      - TERM=${TERM:-xterm-256color}
     networks:
       - mcp-net
 
