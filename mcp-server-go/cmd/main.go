@@ -1,3 +1,4 @@
+// Main entry point for the MCP server
 package main
 
 import (

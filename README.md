@@ -44,6 +44,10 @@ sequenceDiagram
     Host-->>User: Final response<br/>("The sum of 5 and 10 is 15")
 ```
 
+## Example
+
+![Demonstration of MCP server workflow](docs/example.gif)
+
 ## LLM Integration with DeepSeek
 
 This project uses **DeepSeek API** as the Large Language Model (LLM) to provide intelligent tool orchestration capabilities. DeepSeek serves as the "brain" of the system, analyzing natural language queries and determining the appropriate tools to call.
