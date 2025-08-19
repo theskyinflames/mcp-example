@@ -44,7 +44,7 @@ sequenceDiagram
     Host-->>User: Final response<br/>("The sum of 5 and 10 is 15")
 ```
 
-## Example
+## Workflow example
 
 ![Demonstration of MCP server workflow](docs/example.gif)
 
@@ -315,16 +315,44 @@ curl --request POST \
 
 ```text
 mcp-example/
-├── mcp-host/              # Go-based MCP host application
-│   ├── cmd/main.go        # Main application entry point
-│   └── pkg/mcphost/       # Host implementation and LLM integration
-├── mcp-server-go/         # Go MCP server for user management
-│   ├── cmd/main.go        # Server entry point
-│   └── internal/mcpserver/ # User management tools implementation
-├── mcp-server-python/     # Python MCP server for math/text tools
-│   └── mcp-server.py      # FastMCP-based server implementation
-├── scripts/               # Utility scripts
-└── docker-compose.yml     # Multi-container orchestration
+├── docs/                        # Documentation and assets
+│   └── example.gif.             # Demo video showing UI interaction
+├── mcp-host/                    # Go-based MCP host application
+│   ├── Dockerfile               # Container build instructions
+│   ├── Makefile                 # Build and run tasks
+│   ├── go.mod                   # Go module dependencies
+│   ├── cmd/main.go              # Main application entry point (with TTY detection)
+│   ├── pkg/mcphost/             # Host implementation and LLM integration
+│   │   ├── host.go              # Core MCP host logic
+│   │   ├── llm-client.go        # DeepSeek API integration
+│   │   ├── mcp-client-go.go     # Go MCP server client
+│   │   └── mcp-client-python.go # Python MCP server client
+│   └── script/run.sh            # Interactive startup script
+├── mcp-server-go/               # Go MCP server for user management
+│   ├── Dockerfile               # Container build instructions
+│   ├── Makefile                 # Build and run tasks
+│   ├── go.mod                   # Go module dependencies
+│   ├── cmd/main.go              # Server entry point
+│   ├── internal/mcpserver/      # User management tools implementation
+│   │   ├── http.go              # HTTP server and health endpoints
+│   │   ├── mcp-server.go        # MCP protocol implementation
+│   │   └── openapi.json         # OpenAPI 3.0 specification
+│   └── script/run.sh            # Interactive startup script
+├── mcp-server-python/           # Python MCP server for math/text tools
+│   ├── Dockerfile               # Container build instructions
+│   ├── Makefile                 # Build and run tasks
+│   ├── mcp-server.py            # FastMCP-based server (with OpenAPI endpoint)
+│   ├── requirements.txt         # Python dependencies
+│   └── scripts/                 # Python setup and run scripts
+│       ├── run.sh               # Interactive startup script
+│       └── setup.sh             # Environment setup
+├── scripts/                     # Utility scripts
+│   └── run-demo.sh              # Main demo execution script
+├── docker-compose.yml           # Multi-container orchestration (with TTY support)
+├── Makefile                     # Root-level build tasks
+├── README.md                    # This comprehensive documentation
+├── LICENSE                      # Project license
+└── .gitignore                   # Git ignore patterns
 ```
 
 ## Key Features
@@ -337,3 +365,9 @@ mcp-example/
 - **Environment Detection**: Automatically switches between UI and CLI mode based on TTY availability
 - **Containerized deployment**: Full Docker Compose setup for easy testing and deployment
 - **Health checks**: Robust container health monitoring and startup coordination
+
+## What is pending?
+
+- Allowing to chain several operations in one prompt. For example: "Add 1 to 4 and multiply the result by 2"
+- Adding a Authn/Authz layer between the host and the MCPs
+- Improve the UI
