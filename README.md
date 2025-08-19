@@ -46,7 +46,7 @@ sequenceDiagram
 
 ## Example
 
-![Alt Text](docs/example.gif)
+![Demonstration of MCP server workflow](docs/example.gif)
 
 ## LLM Integration with DeepSeek
 
