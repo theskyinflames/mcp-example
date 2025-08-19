@@ -368,6 +368,6 @@ mcp-example/
 
 ## What is pending?
 
-- Allowing to chain several operations in one prompt. For example: "Add 1 to 4 and multiply the result by 2"
+- Adding multi steps support. For example: "Add 1 to 4 and multiply the result by 2"
 - Adding a Authn/Authz layer between the host and the MCPs
-- Improve the UI
+- Improving the UI
